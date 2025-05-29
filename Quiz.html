@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassen-Challenge Quiz: Projektarbeiten & Berichte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* sky-50 */
+        }
+        .quiz-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .question-header {
+            color: #0284c7; /* sky-600 */
+            border-bottom: 2px solid #e0f2fe; /* sky-100 */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #cbd5e1; /* slate-300 */
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .option-btn:hover {
+            background-color: #e0f2fe; /* sky-100 */
+            border-color: #38bdf8; /* sky-400 */
+        }
+        .option-btn.selected {
+            background-color: #bae6fd; /* sky-200 */
+            border-color: #0284c7; /* sky-600 */
+            font-weight: 600;
+        }
+        .option-btn.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #22c55e; /* green-500 */
+            color: #166534; /* green-800 */
+        }
+        .option-btn.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #ef4444; /* red-500 */
+            color: #991b1b; /* red-800 */
+        }
+        .feedback {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .feedback.correct {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .feedback.incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .progress-indicator {
+            font-size: 0.9rem;
+            color: #475569; /* slate-600 */
+        }
+        #timer {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ef4444; /* red-500 */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="quizApp" class="w-full max-w-2xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-700 mb-2">
+                <i class="fas fa-trophy mr-2 text-amber-500"></i>Klassen-Challenge Quiz!
+            </h1>
+            <p class="text-slate-600 text-lg">Zeigt, was ihr über Projektarbeiten wisst!</p>
+        </header>
+
+        <div id="startScreen" class="quiz-container text-center">
+            <h2 class="text-2xl font-semibold text-sky-600 mb-4">Bereit für die Herausforderung?</h2>
+            <p class="mb-4 text-slate-700">
+                Dieses Quiz testet euer Wissen aus der Lerneinheit "Fit für Projektarbeiten & Berichte".
+                Es gibt 7 knifflige Fragen. Für jede richtige Antwort gibt es Basis-Punkte und einen Zeitbonus!
+                Je schneller du richtig antwortest, desto mehr Punkte!
+            </p>
+            <p class="mb-6 text-sm text-slate-500">
+                Pro Frage habt ihr <strong>60 Sekunden</strong> Zeit.
+            </p>
+            <button id="startButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition duration-300">
+                <i class="fas fa-play mr-2"></i>Quiz starten!
+            </button>
+        </div>
+
+        <div id="quizScreen" class="quiz-container hidden">
+            <div class="flex justify-between items-center mb-4">
+                <div id="progressIndicator" class="progress-indicator">Frage 1 von 7</div>
+                <div id="timer" class="font-bold text-xl text-red-600">01:00</div>
+            </div>
+            <div id="scoreDisplay" class="text-right text-lg font-semibold text-green-600 mb-4">Punkte: 0</div>
+            
+            <h2 id="questionText" class="text-xl font-semibold question-header">Fragetext hier...</h2>
+            <div id="optionsContainer" class="mt-4">
+                </div>
+            <div id="feedbackArea" class="feedback hidden">Feedback hier...</div>
+            <button id="nextButton" class="mt-6 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 hidden">
+                Nächste Frage <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+
+        <div id="resultScreen" class="quiz-container text-center hidden">
+            <i class="fas fa-award text-6xl text-amber-400 mb-6"></i>
+            <h2 class="text-2xl font-semibold text-sky-700 mb-3">Quiz beendet!</h2>
+            <p class="text-xl text-slate-700 mb-2">Deine Gesamtpunktzahl (inkl. Zeitbonus):</p>
+            <p class="text-4xl font-bold text-green-600 mb-4" id="finalScoreDisplay">0</p>
+            <p class="text-sm text-slate-500 mb-4">(Maximal mögliche Basispunkte: <span id="totalBasePossibleScore">0</span>)</p>
+            <p id="resultMessage" class="mb-6 text-slate-600"></p>
+            <div class="bg-sky-50 p-4 rounded-md border border-sky-200">
+                <h3 class="font-semibold text-sky-700 mb-2"><i class="fas fa-camera mr-1"></i>Ergebnis festhalten!</h3>
+                <p class="text-sm text-slate-600">Macht einen Screenshot von eurem Ergebnis und vergleicht eure Punktzahlen und Zeiten in der Klasse! Wer hat die meisten Punkte gesammelt?</p>
+            </div>
+            <button id="restartButton" class="mt-8 bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md">
+                <i class="fas fa-redo mr-2"></i>Nochmal spielen
+            </button>
+        </div>
+         <footer class="text-center mt-8 mb-4">
+            <p class="text-sm text-slate-500">&copy; 2025 Judith Jung (mithilfe von KI generiert) – Challenge Quiz</p>
+        </footer>
+    </div>
+
+<script>
+    const quizData = [
+        {
+            question: "Laut Leitfaden ist ein Tipp, die finale Einleitung erst zu schreiben, wenn Hauptteil und Schluss im Entwurf fertig sind. Was ist der Hauptgrund für diese Empfehlung?",
+            options: [
+                "Um sicherzustellen, dass die Einleitung den korrekten prozentualen Umfang von 10-15% nicht überschreitet.",
+                "Weil man dann exakt weiß, was man einleiten muss, um die tatsächlichen Inhalte und Ergebnisse der Arbeit präzise widerzuspiegeln.",
+                "Um die wichtigsten Fachbegriffe erst dann zu definieren, wenn klar ist, welche im Hauptteil verwendet wurden.",
+                "Damit die Einleitung im Präsens formuliert werden kann, auch wenn der Hauptteil bereits im Präteritum steht."
+            ],
+            answer: 1, // Index for "Weil man dann exakt weiß..."
+            points: 10 // Base points
+        },
+        {
+            question: "Welches Element ist für eine überzeugende Einleitung zum Thema 'Chancen und Risiken von KI im Privatkundengeschäft einer Regionalbank' am WENIGSTEN entscheidend?",
+            options: [
+                "Klare Formulierung des Projektziels, z.B. 'Entwicklung von Handlungsempfehlungen'.",
+                "Begründung der aktuellen Relevanz des Themas für die spezifische Regionalbank.",
+                "Eine detaillierte Auflistung aller verwendeten Quellen.",
+                "Ein kurzer Überblick über die geplante Vorgehensweise zur Analyse."
+            ],
+            answer: 2, 
+            points: 10
+        },
+        {
+            question: "Ein Azubi nutzt ein KI-Tool, das ihm mehrere 'passende' Quellen für sein Projekt vorschlägt. Was ist gemäß den Richtlinien für wissenschaftliches Arbeiten der absolut wichtigste nächste Schritt?",
+            options: [
+                "Die Quellen direkt ins Literaturverzeichnis übernehmen, da KI-Tools meist zuverlässig sind.",
+                "Die von der KI generierten Zusammenfassungen der Quellen für den Hauptteil verwenden.",
+                "Jede vorgeschlagene Quelle im Original kritisch prüfen, lesen und selbst bewerten.",
+                "Die KI bitten, weitere, ähnliche Quellen vorzuschlagen, um eine breitere Basis zu haben."
+            ],
+            answer: 2, 
+            points: 15
+        },
+        {
+            question: "Ein KI-Sprachmodell generiert einen formal perfekten und inhaltlich plausibel klingenden Absatz für den Bericht eines Azubis. Was ist das primäre Risiko, wenn der Azubi diesen Absatz ungeprüft übernimmt?",
+            options: [
+                "Das KI-Modell könnte versehentlich urheberrechtlich geschützte Formulierungen anderer Autoren leicht abgewandelt haben (Plagiatsrisiko).",
+                "Der Absatz könnte 'halluzinierte', also faktisch falsche, Informationen enthalten, obwohl er gut klingt.",
+                "Die stilistische Qualität des KI-Textes passt möglicherweise nicht zum Rest der eigenständig verfassten Arbeit.",
+                "Alle oben genannten Risiken sind relevant und müssen bedacht werden."
+            ],
+            answer: 3, 
+            points: 15
+        },
+        {
+            question: "Ein Azubi paraphrasiert eine zentrale Erkenntnis von Seite 88 eines Buches von Dr. Eva Beispiel aus dem Jahr 2024. Wie lautet der korrekte Kurzbeleg im Text nach APA-Stil (7. Aufl.), wenn die Autorin NICHT direkt im Satz genannt wird?",
+            options: [
+                "(Dr. Beispiel, 2024, S. 88)",
+                "(Beispiel, 2024, p. 88)",
+                "(Beispiel, E., 2024, Seite 88)",
+                "(Beispiel, 2024)"
+            ],
+            answer: 1, 
+            points: 10 
+        },
+        {
+            question: "Welche Information ist für einen Bucheintrag (Monografie) im Literaturverzeichnis nach APA-Stil (7. Aufl.) NICHT zwingend erforderlich?",
+            options: [
+                "Name des Verlags",
+                "Erscheinungsjahr",
+                "ISBN-Nummer des Buches",
+                "Titel des Buches (kursiv)"
+            ],
+            answer: 2, 
+            points: 10
+        },
+        {
+            question: "Ein Fazit einer Projektarbeit soll primär die wichtigsten Ergebnisse zusammenfassen und die Forschungsfrage beantworten. Welche der folgenden Aussagen beschreibt etwas, das definitiv NICHT in ein gutes Fazit gehört?",
+            options: [
+                "Eine kurze persönliche Reflexion über den Lernprozess während der Arbeit.",
+                "Die erstmalige Vorstellung eines völlig neuen Arguments, das im Hauptteil nicht diskutiert wurde.",
+                "Ein Ausblick auf mögliche weiterführende Untersuchungen oder praktische Implikationen.",
+                "Eine kritische Einordnung, ob die ursprünglichen Ziele erreicht wurden, auch wenn Ergebnisse negativ sind."
+            ],
+            answer: 1, 
+            points: 15
+        }
+    ];
+
+    const startButton = document.getElementById('startButton');
+    const quizScreen = document.getElementById('quizScreen');
+    const startScreen = document.getElementById('startScreen');
+    const resultScreen = document.getElementById('resultScreen');
+
+    const questionTextEl = document.getElementById('questionText');
+    const optionsContainerEl = document.getElementById('optionsContainer');
+    const feedbackAreaEl = document.getElementById('feedbackArea');
+    const nextButton = document.getElementById('nextButton');
+    const scoreDisplayEl = document.getElementById('scoreDisplay');
+    const progressIndicatorEl = document.getElementById('progressIndicator');
+    const timerEl = document.getElementById('timer');
+
+    const finalScoreDisplayEl = document.getElementById('finalScoreDisplay');
+    const totalBasePossibleScoreEl = document.getElementById('totalBasePossibleScore');
+    const resultMessageEl = document.getElementById('resultMessage');
+    const restartButton = document.getElementById('restartButton');
+
+    let currentQuestionIndex = 0;
+    let score = 0; // This will now include base points + time bonus
+    let timerInterval;
+    const TIME_LIMIT = 60; // seconds per question
+    const TIME_BONUS_FACTOR = 0.25; // Points per second of time left
+    let timeLeft = TIME_LIMIT;
+
+    function startQuiz() {
+        startScreen.classList.add('hidden');
+        resultScreen.classList.add('hidden');
+        quizScreen.classList.remove('hidden');
+        currentQuestionIndex = 0;
+        score = 0;
+        updateScoreDisplay();
+        loadQuestion();
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timeLeft = TIME_LIMIT;
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timeLeft <= 10) {
+            timerEl.classList.add('text-red-600'); 
+            timerEl.classList.remove('text-orange-500');
+        } else if (timeLeft <= 30) {
+            timerEl.classList.add('text-orange-500');
+             timerEl.classList.remove('text-red-600');
+        } else {
+            timerEl.classList.remove('text-red-600', 'text-orange-500');
+        }
+    }
+    
+    function handleTimeOut() {
+        feedbackAreaEl.textContent = `Die Zeit ist um! Die richtige Antwort wäre gewesen: ${quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].answer]}`;
+        feedbackAreaEl.className = 'feedback incorrect'; 
+        feedbackAreaEl.classList.remove('hidden');
+        disableOptions();
+        nextButton.classList.remove('hidden');
+         if (currentQuestionIndex === quizData.length - 1) {
+            nextButton.textContent = 'Ergebnisse anzeigen';
+        }
+    }
+
+
+    function loadQuestion() {
+        resetTimer();
+        const currentQuestion = quizData[currentQuestionIndex];
+        questionTextEl.textContent = currentQuestion.question;
+        optionsContainerEl.innerHTML = '';
+        feedbackAreaEl.classList.add('hidden');
+        nextButton.classList.add('hidden');
+        progressIndicatorEl.textContent = `Frage ${currentQuestionIndex + 1} von ${quizData.length}`;
+
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.textContent = option;
+            button.classList.add('option-btn');
+            button.addEventListener('click', () => selectAnswer(index, button));
+            optionsContainerEl.appendChild(button);
+        });
+    }
+
+    function selectAnswer(selectedIndex, buttonEl) {
+        clearInterval(timerInterval); 
+        disableOptions();
+        buttonEl.classList.add('selected');
+
+        const currentQuestion = quizData[currentQuestionIndex];
+        const basePoints = currentQuestion.points;
+        let timeBonus = 0;
+
+        if (selectedIndex === currentQuestion.answer) {
+            timeBonus = Math.round(timeLeft * TIME_BONUS_FACTOR);
+            score += basePoints + timeBonus;
+            feedbackAreaEl.textContent = `Richtig! (+${basePoints} Punkte + ${timeBonus} Zeitbonus)`;
+            feedbackAreaEl.className = 'feedback correct';
+            buttonEl.classList.add('correct');
+        } else {
+            feedbackAreaEl.textContent = `Leider falsch. Richtig wäre: ${currentQuestion.options[currentQuestion.answer]}`;
+            feedbackAreaEl.className = 'feedback incorrect';
+            buttonEl.classList.add('incorrect');
+            optionsContainerEl.children[currentQuestion.answer].classList.add('correct');
+        }
+        updateScoreDisplay();
+        feedbackAreaEl.classList.remove('hidden');
+        nextButton.classList.remove('hidden');
+        if (currentQuestionIndex === quizData.length - 1) {
+            nextButton.textContent = 'Ergebnisse anzeigen';
+        }
+    }
+
+    function disableOptions() {
+        Array.from(optionsContainerEl.children).forEach(button => {
+            button.disabled = true;
+        });
+    }
+
+    function updateScoreDisplay() {
+        scoreDisplayEl.textContent = `Punkte: ${score}`;
+    }
+
+    function showResults() {
+        quizScreen.classList.add('hidden');
+        resultScreen.classList.remove('hidden');
+        
+        const totalBasePoints = quizData.reduce((sum, q) => sum + q.points, 0);
+        finalScoreDisplayEl.textContent = score; // Score now includes time bonus
+        totalBasePossibleScoreEl.textContent = totalBasePoints;
+
+        // Result message can be more dynamic based on the score including time bonus
+        // For simplicity, we'll use a generic percentage of base points for the message,
+        // but the actual ranking will be based on the final score.
+        let message = "";
+        // Calculate percentage based on base points for a rough idea, true ranking is by final score.
+        const percentageOfBase = (score / (totalBasePoints + (TIME_LIMIT * TIME_BONUS_FACTOR * quizData.length) ) ) *100 ; // Theoretical max score for messaging
+        
+        if (score > totalBasePoints * 0.9 + (TIME_LIMIT * TIME_BONUS_FACTOR * quizData.length * 0.5) ) { // Example: High score with decent speed
+             message = "Hervorragend! Du bist ein echter Projekt-Champion mit Top-Zeit! 🏆";
+        } else if (score > totalBasePoints * 0.7) {
+            message = "Sehr stark! Du kennst dich aus und bist schnell! 👍";
+        } else if (score > totalBasePoints * 0.5) {
+            message = "Gut gemacht! Solides Wissen und eine gute Zeit.";
+        } else {
+            message = "Okay, da ist noch Potenzial. Übung und Geschwindigkeit machen den Meister! 📚";
+        }
+        resultMessageEl.textContent = message;
+    }
+
+    nextButton.addEventListener('click', () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+            nextButton.textContent = 'Nächste Frage'; 
+        } else {
+            showResults();
+        }
+    });
+
+    startButton.addEventListener('click', startQuiz);
+    restartButton.addEventListener('click', startQuiz); 
+
+</script>
+</body>
+</html>

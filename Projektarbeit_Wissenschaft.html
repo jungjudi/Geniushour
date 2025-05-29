@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Lerneinheit: Projektarbeiten für Bankazubis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .module-content {
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .module-content.active {
+            max-height: 10000px; /* Adjust as needed for content */
+            opacity: 1;
+        }
+        .quiz-option {
+            transition: background-color 0.3s;
+        }
+        .quiz-option:hover {
+            background-color: #e0f2fe; /* light-blue-100 */
+        }
+        .correct {
+            background-color: #dcfce7; /* green-100 */
+            border-left: 4px solid #22c55e; /* green-500 */
+        }
+        .incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-left: 4px solid #ef4444; /* red-500 */
+        }
+        .feedback-message {
+            display: none;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+        }
+        .feedback-message.correct {
+            background-color: #dcfce7; /* green-100 */
+            color: #166534; /* green-800 */
+        }
+        .feedback-message.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-800 */
+        }
+        /* Progress Bar Styles */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb; /* gray-200 */
+            border-radius: 9999px;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            height: 1.5rem;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 9999px;
+            text-align: center;
+            line-height: 1.5rem;
+            color: white;
+            transition: width 0.5s ease-in-out;
+        }
+        .module-header {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 min-h-screen flex flex-col items-center">
+
+    <div class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 md:p-10">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-600 mb-2">Fit für Projektarbeiten & Berichte!</h1>
+            <p class="text-slate-600 text-lg">Deine interaktive Lerneinheit für die Bankausbildung</p>
+            <p class="text-sm text-slate-500 mt-1">Stand: 29. Mai 2025</p>
+        </header>
+
+        <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar" style="width: 0%;">0%</div>
+        </div>
+
+        <div id="learningUnit">
+            <div id="startScreen" class="text-center p-6 bg-sky-50 rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-sky-700 mb-4">Willkommen, angehende/r Bankkauffrau/-mann!</h2>
+                <p class="mb-4 text-slate-700">Diese Lerneinheit macht dich fit für das Erstellen von erstklassigen Projektarbeiten, Berichten und Analysen. Du lernst Schritt für Schritt, worauf es ankommt – von der Struktur bis zum richtigen Zitieren. Bist du bereit, dein Wissen auf das nächste Level zu heben?</p>
+                <button id="startButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition duration-300">
+                    <i class="fas fa-rocket mr-2"></i>Lerneinheit starten!
+                </button>
+            </div>
+
+            <div id="modulesContainer" class="hidden">
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-sky-500 text-white flex justify-between items-center" data-module-id="1">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-star mr-2"></i>Modul 1: Warum ist das wichtig für Sie?</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-1-content" class="module-content p-5 border-t border-sky-200">
+                        <p class="mb-4">Im Bankalltag müssen Sie oft Informationen sammeln, analysieren und verständlich aufbereiten – sei es für interne Projekte, Kundenanalysen, Marktbeobachtungen oder in Weiterbildungsformaten. Eine klare Struktur, eine saubere Argumentation und der korrekte Umgang mit Quellen sind dabei entscheidend für die Qualität Ihrer Arbeit und Ihre professionelle Wirkung. Denken Sie daran: Ihre Berichte und Analysen können Entscheidungsgrundlagen für Ihr Team oder sogar die Bankleitung sein!</p>
+                        
+                        <div class="quiz mt-6 p-4 bg-sky-50 rounded-md border border-sky-200">
+                            <h3 class="font-semibold text-sky-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Warum ist die Fähigkeit, gute Projektarbeiten zu erstellen, für Sie als Bankkaufmann/-frau besonders wichtig?</p>
+                            <div id="quiz1-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-sky-500" data-correct="false">A) Hauptsächlich, um gute Noten in der Berufsschule zu bekommen.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-sky-500" data-correct="true">B) Weil sie die Grundlage für wichtige Entscheidungen in der Bank bilden können und Professionalität zeigen.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-sky-500" data-correct="false">C) Um Kolleginnen und Kollegen mit Fachwissen zu beeindrucken.</button>
+                            </div>
+                            <div id="feedback1" class="feedback-message"></div>
+                        </div>
+                        <button class="next-module-btn mt-4 bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="2">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-amber-500 text-white flex justify-between items-center" data-module-id="2">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-sitemap mr-2"></i>Modul 2: Der grundlegende Aufbau</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-2-content" class="module-content p-5 border-t border-amber-200">
+                        <p class="mb-3">Jede gute Projektarbeit oder jeder Bericht folgt einer logischen Struktur. Das hilft Ihnen beim Schreiben und dem Leser beim Verstehen. Die Kernstruktur ist immer ähnlich:</p>
+                        <ul class="list-disc list-inside mb-3 bg-amber-50 p-3 rounded-md">
+                            <li><strong>Einleitung:</strong> Worum geht es und warum ist es wichtig? (ca. 10-15% des Umfangs)</li>
+                            <li><strong>Hauptteil:</strong> Was haben Sie herausgefunden und wie? (der größte Teil, z.B. 70-80%)</li>
+                            <li><strong>Schlussteil:</strong> Was sind die Kernaussagen und was folgt daraus? (ca. 10-15% des Umfangs)</li>
+                        </ul>
+                        <p class="mb-3">Dazu kommen noch einige formale Teile, die je nach Anforderung Ihrer Bank oder Berufsschule variieren können:</p>
+                        <ul class="list-disc list-inside mb-3 bg-amber-50 p-3 rounded-md">
+                            <li>Deckblatt</li>
+                            <li>Inhaltsverzeichnis</li>
+                            <li>(Optional) Abbildungsverzeichnis, Tabellenverzeichnis, Abkürzungsverzeichnis</li>
+                            <li>Literaturverzeichnis</li>
+                            <li>Eidesstattliche Erklärung</li>
+                        </ul>
+                        <p class="mb-4"><strong>Tipp zur Gliederung:</strong> Ihre Gliederung ist Ihr Fahrplan. Sie hilft Ihnen, "sich einen Überblick über den Aufbau Ihrer Ausarbeitung zu verschaffen". Planen Sie die Kapitel und Unterkapitel logisch, sodass ein "roter Faden" erkennbar ist.</p>
+                        
+                        <div class="quiz mt-6 p-4 bg-amber-50 rounded-md border border-amber-200">
+                            <h3 class="font-semibold text-amber-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Welcher Teil einer Projektarbeit nimmt üblicherweise den größten Umfang ein?</p>
+                            <div id="quiz2-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-amber-500" data-correct="false">A) Die Einleitung</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-amber-500" data-correct="true">B) Der Hauptteil</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-amber-500" data-correct="false">C) Der Schlussteil</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-amber-500" data-correct="false">D) Das Literaturverzeichnis</button>
+                            </div>
+                            <div id="feedback2" class="feedback-message"></div>
+                        </div>
+                         <button class="next-module-btn mt-4 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="3">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-emerald-500 text-white flex justify-between items-center" data-module-id="3">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-door-open mr-2"></i>Modul 3: Die Einleitung – Der erste Eindruck zählt</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-3-content" class="module-content p-5 border-t border-emerald-200">
+                        <p class="mb-3">Die Einleitung soll das Interesse Ihrer Leser wecken und klar machen, was sie erwartet. Sie sollte:</p>
+                        <ul class="list-disc list-inside mb-3 bg-emerald-50 p-3 rounded-md">
+                            <li>Zum Thema hinführen (Problem, Fragestellung, Projektziel)</li>
+                            <li>Die Relevanz begründen</li>
+                            <li>Das Ziel präzise formulieren</li>
+                            <li>Einen kurzen Überblick über Ihr Vorgehen geben</li>
+                            <li>(Optional) Wichtige Begriffe erklären</li>
+                        </ul>
+                        <p class="mb-3"><strong>Formulierung:</strong> Schreiben Sie "prägnant und besonders klar und präzise". Nutzen Sie hauptsächlich das Präsens. Für abgeschlossene Sachverhalte können Sie Präteritum oder Perfekt verwenden.</p>
+                        <p class="mb-4"><strong>Tipp:</strong> Viele schreiben die finale Einleitung erst, wenn der Hauptteil und der Schluss (zumindest im Entwurf) fertig sind.</p>
+
+                        <div class="quiz mt-6 p-4 bg-emerald-50 rounded-md border border-emerald-200">
+                            <h3 class="font-semibold text-emerald-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Welche Aussage über die Einleitung ist <strong>FALSCH</strong>?</p>
+                            <div id="quiz3-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-emerald-500" data-correct="false">A) Sie soll das Interesse des Lesers wecken.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-emerald-500" data-correct="false">B) Sie formuliert das genaue Ziel der Arbeit.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-emerald-500" data-correct="true">C) Sie sollte immer als Allererstes und vor allen anderen Teilen final geschrieben werden.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-emerald-500" data-correct="false">D) Sie gibt einen kurzen Überblick über das Vorgehen in der Arbeit.</button>
+                            </div>
+                            <div id="feedback3" class="feedback-message"></div>
+                        </div>
+                        <button class="next-module-btn mt-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="4">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+                
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-indigo-500 text-white flex justify-between items-center" data-module-id="4">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-search mr-2"></i>Modul 4: Informationsgewinnung & KI-Nutzung</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-4-content" class="module-content p-5 border-t border-indigo-200">
+                        <p class="mb-3">Ihre Arbeit basiert auf einer <strong>Literaturrecherche</strong>. Sie suchen, sammeln, bewerten und analysieren vorhandenes Wissen. Dies macht Ihre Arbeit nachvollziehbar und glaubwürdig.</p>
+                        <h4 class="font-semibold mt-4 mb-2 text-indigo-700">Was ist eine Literaturrecherche?</h4>
+                        <p class="mb-3 bg-indigo-50 p-3 rounded-md">Ein systematischer Prozess, um relevante veröffentlichte Informationen zu Ihrer Fragestellung zu finden. Ziel: aktuellen Forschungsstand erfassen, verschiedene Perspektiven kennenlernen, fundierte Grundlage schaffen.</p>
+                        <h4 class="font-semibold mt-4 mb-2 text-indigo-700">Worauf achten?</h4>
+                        <ul class="list-disc list-inside mb-3 bg-indigo-50 p-3 rounded-md">
+                            <li>Welche Arten von Literatur haben Sie verwendet? (Fachbücher, Artikel, Studien etc.)</li>
+                            <li>Woher stammen die Informationen? (Datenbanken, Bibliotheken, Webseiten von BaFin, Bundesbank etc.)</li>
+                            <li>Wie haben Sie gesucht und ausgewählt? (Stichwortsuche, Schneeballverfahren, Kriterien)</li>
+                            <li>Wie haben Sie die Literatur analysiert? (Vergleich, Pro/Kontra, Zusammenfassen, kritische Bewertung)</li>
+                        </ul>
+                        <h4 class="font-semibold mt-4 mb-2 text-indigo-700">Deep Research und KI-Unterstützung:</h4>
+                        <p class="mb-2">Moderne Technologien wie KI können helfen, aber Vorsicht ist geboten!</p>
+                        <ul class="list-disc list-inside mb-3 bg-indigo-50 p-3 rounded-md">
+                            <li><strong>Potenzial von KI:</strong> Themenfindung, Schlüsselbegriffe, Quellenvorschläge (kritisch prüfen!), erste Zusammenfassungen (nie unreflektiert übernehmen!), Forschungslücken finden, Formulierungshilfen (Kernleistung muss Ihre sein!).</li>
+                            <li><strong>Wichtig beim KI-Einsatz:</strong> Quellenkritik (KI kann halluzinieren!), Originalquellen zitieren, eigene Denkleistung, Transparenz (ggf. erwähnen), Plagiate vermeiden, Bias-Bewusstsein.</li>
+                        </ul>
+                         <p class="mb-4"><strong>Merke:</strong> Eine sorgfältige und kritische Literaturrecherche ist das Fundament für die Qualität und Überzeugungskraft Ihrer gesamten Arbeit.</p>
+
+                        <div class="quiz mt-6 p-4 bg-indigo-50 rounded-md border border-indigo-200">
+                            <h3 class="font-semibold text-indigo-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Beim Einsatz von KI zur Literaturrecherche gilt:</p>
+                            <div id="quiz4-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-indigo-500" data-correct="false">A) Man kann sich voll auf KI-generierte Zusammenfassungen verlassen und diese direkt zitieren.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-indigo-500" data-correct="true">B) Jede von KI vorgeschlagene Quelle und Information muss kritisch im Original geprüft werden.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-indigo-500" data-correct="false">C) KI-Tools sind unfehlbar und erkennen Plagiate automatisch.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-indigo-500" data-correct="false">D) Die Erwähnung von KI-Nutzung ist nicht notwendig, da es Standard ist.</button>
+                            </div>
+                            <div id="feedback4" class="feedback-message"></div>
+                        </div>
+                        <button class="next-module-btn mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="5">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-purple-500 text-white flex justify-between items-center" data-module-id="5">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-quote-right mr-2"></i>Modul 5: Richtig zitieren (APA-Stil)</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-5-content" class="module-content p-5 border-t border-purple-200">
+                        <p class="mb-3">Wenn Sie Informationen aus anderen Quellen übernehmen, <strong>müssen</strong> Sie das kenntlich machen. Das zeigt Gründlichkeit, gibt Gewicht, ist fair und vermeidet Plagiate.</p>
+                        <p class="mb-3">Wir verwenden den <strong>APA-Stil (7. Auflage)</strong>. Wichtig: einheitlich nutzen!</p>
+                        <h4 class="font-semibold mt-4 mb-2 text-purple-700">Grundprinzipien APA-Stil:</h4>
+                        <ul class="list-disc list-inside mb-3 bg-purple-50 p-3 rounded-md">
+                            <li><strong>Kurzbelege im Text:</strong> (Autor, Jahr) oder Autor (Jahr). Bei direkten Zitaten mit Seitenzahl (Autor, Jahr, S. xx).</li>
+                            <li><strong>Literaturverzeichnis am Ende:</strong> Alle zitierten Quellen vollständig und alphabetisch.</li>
+                        </ul>
+                        <h4 class="font-semibold mt-4 mb-2 text-purple-700">Arten von Zitaten:</h4>
+                        <ul class="list-disc list-inside mb-3 bg-purple-50 p-3 rounded-md">
+                            <li><strong>Direktes Zitat:</strong> Wörtliche Übernahme in Anführungszeichen. Sparsam verwenden!</li>
+                            <li><strong>Indirektes Zitat (Paraphrase):</strong> Sinngemäße Wiedergabe in eigenen Worten (Regelfall).</li>
+                        </ul>
+                        <p class="mb-3"><strong>Beispiel Buch im Literaturverzeichnis (APA):</strong> Meier, H. (2022). <em>Modernes Risikomanagement in Banken</em>. FinanzVerlag.</p>
+                        <p class="mb-4"><strong>Wichtig:</strong> Seien Sie <strong>einheitlich</strong> und <strong>sorgfältig</strong>! Nutzen Sie aktuelle APA-Styleguides.</p>
+
+                        <div class="quiz mt-6 p-4 bg-purple-50 rounded-md border border-purple-200">
+                            <h3 class="font-semibold text-purple-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Wie sieht ein korrekter Kurzbeleg im Text für ein indirektes Zitat nach APA-Stil aus, wenn der Autor Mustermann heißt und das Werk 2023 erschienen ist?</p>
+                            <div id="quiz5-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-purple-500" data-correct="false">A) (Mustermann, S. 23, 2023)</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-purple-500" data-correct="true">B) (Mustermann, 2023)</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-purple-500" data-correct="false">C) Mustermann, "Banken im Wandel", 2023.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-purple-500" data-correct="false">D) Siehe Literaturverzeichnis: Mustermann (2023).</button>
+                            </div>
+                            <div id="feedback5" class="feedback-message"></div>
+                        </div>
+                        <button class="next-module-btn mt-4 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="6">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-pink-500 text-white flex justify-between items-center" data-module-id="6">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-flag-checkered mr-2"></i>Modul 6: Der Schlussteil – Fazit und Ausblick</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-6-content" class="module-content p-5 border-t border-pink-200">
+                        <p class="mb-3">Hier runden Sie Ihre Arbeit ab und präsentieren die Quintessenz.</p>
+                        <h4 class="font-semibold mt-4 mb-2 text-pink-700">Das Fazit:</h4>
+                        <ul class="list-disc list-inside mb-3 bg-pink-50 p-3 rounded-md">
+                            <li>Fasst wichtigste Ergebnisse/Kernaussagen zusammen.</li>
+                            <li>Beantwortet die Frage/das Ziel aus der Einleitung.</li>
+                            <li>Ordnet Ergebnisse ein: Was bedeuten sie konkret?</li>
+                            <li><strong>Wichtig:</strong> Keine neuen Informationen, Interpretationen, Beispiele oder Zitate!</li>
+                        </ul>
+                        <h4 class="font-semibold mt-4 mb-2 text-pink-700">Der Ausblick (Optional, aber oft wertvoll):</h4>
+                        <ul class="list-disc list-inside mb-3 bg-pink-50 p-3 rounded-md">
+                            <li>Konkrete nächste Schritte?</li>
+                            <li>Offene Fragen, weiterer Untersuchungsbedarf?</li>
+                            <li>Empfehlungen für die Praxis?</li>
+                        </ul>
+                        <p class="mb-4"><strong>Tipp:</strong> Das Fazit ist der "letzte Eindruck Ihrer Arbeit". Sorgen Sie für Klarheit und Überzeugungskraft!</p>
+
+                        <div class="quiz mt-6 p-4 bg-pink-50 rounded-md border border-pink-200">
+                            <h3 class="font-semibold text-pink-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Wissens-Check:</h3>
+                            <p class="mb-3">Was gehört <strong>NICHT</strong> in das Fazit einer Projektarbeit?</p>
+                            <div id="quiz6-options">
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-pink-500" data-correct="false">A) Eine Zusammenfassung der wichtigsten Ergebnisse.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-pink-500" data-correct="true">B) Völlig neue Argumente, die im Hauptteil nicht erwähnt wurden.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-pink-500" data-correct="false">C) Eine Beantwortung der in der Einleitung gestellten Forschungsfrage.</button>
+                                <button class="quiz-option w-full text-left p-3 mb-2 border border-slate-300 rounded-md hover:border-pink-500" data-correct="false">D) Eine Einordnung der Ergebnisse.</button>
+                            </div>
+                            <div id="feedback6" class="feedback-message"></div>
+                        </div>
+                        <button class="next-module-btn mt-4 bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-md float-right" data-next-module="7">
+                            Nächstes Modul <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+
+                <div class="module mb-6 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="module-header p-5 bg-teal-500 text-white flex justify-between items-center" data-module-id="7">
+                        <h2 class="text-xl font-semibold"><i class="fas fa-thumbs-up mr-2"></i>Modul 7: Allgemeine Tipps für Qualität</h2>
+                        <i class="fas fa-chevron-down transform transition-transform"></i>
+                    </div>
+                    <div id="module-7-content" class="module-content p-5 border-t border-teal-200">
+                        <ul class="list-disc list-inside space-y-2 mb-4 bg-teal-50 p-4 rounded-md">
+                            <li><strong>Wissenschaftlichen Standards folgen:</strong> Sorgfalt und Nachvollziehbarkeit.</li>
+                            <li><strong>Sachlich und verständlich schreiben:</strong> Klare, präzise Sprache.</li>
+                            <li><strong>Korrekte Sprache:</strong> Rechtschreibung, Grammatik, Zeichensetzung. Lektorat!</li>
+                            <li><strong>Der "rote Faden":</strong> Kohärente Struktur, logische Argumentation.</li>
+                            <li><strong>Quellen kritisch auswählen:</strong> Vertrauenswürdige und aktuelle Quellen.</li>
+                            <li><strong>Zeitmanagement:</strong> Genügend Zeit für alle Phasen einplanen.</li>
+                            <li><strong>Feedback einholen:</strong> Von Ausbildern oder Kollegen.</li>
+                            <li><strong>Vorgaben beachten:</strong> Umfang, Formatierung, Termine.</li>
+                        </ul>
+                        <p class="font-semibold text-teal-700">Abschlussbemerkung: Eine gut strukturierte, methodisch saubere und formal korrekte Arbeit ist Ihre Visitenkarte und zeigt wichtige berufliche Fähigkeiten!</p>
+
+                        <div class="quiz mt-6 p-4 bg-teal-50 rounded-md border border-teal-200">
+                             <h3 class="font-semibold text-teal-700 mb-2"><i class="fas fa-question-circle mr-1"></i>Selbstreflexion:</h3>
+                            <p class="mb-3">Welchen dieser Tipps halten Sie für sich persönlich für am wichtigsten, um Ihre nächste Projektarbeit zu verbessern?</p>
+                            <select id="quiz7-options" class="w-full p-3 border border-slate-300 rounded-md bg-white">
+                                <option value="">Bitte wählen...</option>
+                                <option value="zeitmanagement">Besseres Zeitmanagement</option>
+                                <option value="quellenkritik">Kritischere Quellenauswahl</option>
+                                <option value="roterfaden">Stärker auf den "roten Faden" achten</option>
+                                <option value="feedback">Früher Feedback einholen</option>
+                                <option value="sprache">Genauere sprachliche Überarbeitung</option>
+                            </select>
+                            <div id="feedback7" class="feedback-message mt-2">Danke für Ihre Einschätzung! Daran zu arbeiten wird Ihnen sicher helfen.</div>
+                        </div>
+                        <button id="finishButton" class="mt-6 bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-md hover:shadow-lg transition duration-300 w-full">
+                            <i class="fas fa-check-circle mr-2"></i>Lerneinheit abschließen
+                        </button>
+                    </div>
+                </div>
+            </div> 
+            
+            <div id="completionScreen" class="hidden text-center p-8 bg-green-50 rounded-lg shadow-lg">
+                <i class="fas fa-award text-6xl text-green-500 mb-6"></i>
+                <h2 class="text-3xl font-bold text-green-700 mb-4">Herzlichen Glückwunsch!</h2>
+                <p class="text-xl text-slate-700 mb-4">Du hast die Lerneinheit erfolgreich abgeschlossen!</p>
+                <p class="mb-6 text-slate-600">Du bist jetzt bestens gerüstet, um überzeugende Projektarbeiten und Berichte zu erstellen. Denk daran, die gelernten Prinzipien anzuwenden und bei Bedarf auf diesen Leitfaden zurückzugreifen. Viel Erfolg bei deinen zukünftigen Aufgaben!</p>
+                <button id="restartButton" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md">
+                    <i class="fas fa-redo mr-2"></i>Nochmal starten
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="text-center mt-12 mb-4">
+        <p class="text-sm text-slate-500">&copy; 2025 Judith Jung (mithilfe von KI generiert) – Interaktive Lerneinheit</p>
+    </footer>
+
+<script>
+    // Gesamtzahl der Module für den Fortschrittsbalken
+    const totalModules = 7;
+    let completedModules = 0;
+    let quizAnsweredForModule = new Array(totalModules + 1).fill(false); // Track if quiz in module was answered
+
+    const startButton = document.getElementById('startButton');
+    const modulesContainer = document.getElementById('modulesContainer');
+    const startScreen = document.getElementById('startScreen');
+    const completionScreen = document.getElementById('completionScreen');
+    const finishButton = document.getElementById('finishButton');
+    const restartButton = document.getElementById('restartButton');
+    const progressBar = document.getElementById('progressBar');
+
+    // Function to update progress bar
+    function updateProgressBar() {
+        const progress = totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
+        progressBar.style.width = progress + '%';
+        progressBar.textContent = Math.round(progress) + '%';
+    }
+    
+    // Function to open a specific module and close others
+    function openModule(moduleId, scrollIntoView = true) {
+        // Close all currently active modules
+        document.querySelectorAll('.module-content.active').forEach(activeContent => {
+            if (activeContent.id !== `module-${moduleId}-content`) { // Don't close if it's the target
+                activeContent.classList.remove('active');
+                activeContent.style.maxHeight = '0';
+                activeContent.style.opacity = '0';
+                const activeIcon = activeContent.parentElement.querySelector('.module-header i.fa-chevron-down');
+                if (activeIcon) activeIcon.classList.remove('rotate-180');
+            }
+        });
+
+        const targetContent = document.getElementById(`module-${moduleId}-content`);
+        // Find the module header associated with this moduleId
+        const moduleHeader = document.querySelector(`.module-header[data-module-id="${moduleId}"]`);
+        const targetIcon = moduleHeader ? moduleHeader.querySelector('i.fa-chevron-down') : null;
+
+        if (targetContent && moduleHeader) { // Ensure both targetContent and moduleHeader exist
+            if (!targetContent.classList.contains('active')) { // Only open if not already active
+                targetContent.classList.add('active');
+                targetContent.style.maxHeight = targetContent.scrollHeight + "px";
+                targetContent.style.opacity = '1';
+                if(targetIcon) targetIcon.classList.add('rotate-180');
+            }
+
+            if (scrollIntoView) { 
+                // Wait for the CSS transition of maxHeight to be substantially complete
+                // The transition duration is 0.5s (500ms).
+                setTimeout(() => {
+                    // console.log("Scrolling to header of module:", moduleId, moduleHeader); // For debugging
+                    moduleHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 550); // Increased delay to 550ms
+            }
+        } else {
+            // console.warn(`Could not find content or header for module ${moduleId}`); // For debugging
+        }
+    }
+
+    // Start Button functionality
+    startButton.addEventListener('click', () => {
+        startScreen.classList.add('hidden');
+        modulesContainer.classList.remove('hidden');
+        openModule(1, true); // Open first module and scroll to it
+    });
+
+    // Module Header click to toggle
+    document.querySelectorAll('.module-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const moduleId = header.dataset.moduleId;
+            const content = document.getElementById(`module-${moduleId}-content`);
+            const icon = header.querySelector('i.fa-chevron-down');
+
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+                if(icon) icon.classList.remove('rotate-180');
+            } else {
+                openModule(moduleId, true); // Open and scroll to this module's header
+            }
+        });
+    });
+
+    // Quiz functionality
+    function handleQuiz(quizNum) {
+        const optionsContainer = document.getElementById(`quiz${quizNum}-options`);
+        if (!optionsContainer) {
+            return; 
+        }
+        const options = optionsContainer.querySelectorAll('button.quiz-option');
+        const feedbackEl = document.getElementById(`feedback${quizNum}`);
+        
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                if (quizAnsweredForModule[quizNum]) return;
+
+                options.forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    opt.disabled = true; 
+                });
+
+                const isCorrect = option.dataset.correct === 'true';
+                if (isCorrect) {
+                    option.classList.add('correct');
+                    feedbackEl.textContent = 'Richtig! Sehr gut gemacht.';
+                    feedbackEl.className = 'feedback-message correct';
+                     if (!quizAnsweredForModule[quizNum]) {
+                        completedModules++;
+                        quizAnsweredForModule[quizNum] = true;
+                        updateProgressBar();
+                    }
+                } else {
+                    option.classList.add('incorrect');
+                    options.forEach(opt => {
+                        if (opt.dataset.correct === 'true') {
+                            opt.classList.add('correct');
+                             opt.innerHTML += ' <i class="fas fa-check ml-2"></i> (Richtige Antwort)';
+                        }
+                    });
+                    feedbackEl.textContent = 'Das war leider nicht ganz richtig. Schau dir die richtige Antwort an.';
+                    feedbackEl.className = 'feedback-message incorrect';
+                     if (!quizAnsweredForModule[quizNum]) {
+                        completedModules++; 
+                        quizAnsweredForModule[quizNum] = true;
+                        updateProgressBar();
+                    }
+                }
+                feedbackEl.style.display = 'block';
+                
+                const nextButton = document.querySelector(`#module-${quizNum}-content .next-module-btn`);
+                if (nextButton) {
+                    nextButton.focus(); 
+                } else if (parseInt(quizNum) === totalModules) { 
+                    finishButton.focus();
+                }
+            });
+        });
+    }
+
+    for (let i = 1; i <= 6; i++) { 
+        handleQuiz(i);
+    }
+
+    const quiz7Options = document.getElementById('quiz7-options');
+    const feedback7El = document.getElementById('feedback7');
+    if (quiz7Options) {
+        quiz7Options.addEventListener('change', () => {
+            if (quiz7Options.value !== "") {
+                feedback7El.style.display = 'block';
+                if (!quizAnsweredForModule[7]) {
+                    completedModules++;
+                    quizAnsweredForModule[7] = true;
+                    updateProgressBar();
+                }
+            } else {
+                feedback7El.style.display = 'none';
+            }
+        });
+    }
+
+    document.querySelectorAll('.next-module-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const currentModuleContent = e.target.closest('.module-content');
+            if (!currentModuleContent) return;
+            const currentModuleNumStr = currentModuleContent.id.split('-')[1];
+            if (!currentModuleNumStr) return;
+            const currentModuleNum = parseInt(currentModuleNumStr);
+            
+            const nextModuleNum = parseInt(button.dataset.nextModule);
+            
+            if (!quizAnsweredForModule[currentModuleNum] && currentModuleNum >= 1 && currentModuleNum <= 6) { 
+                const quizSection = document.querySelector(`#module-${currentModuleNum}-content .quiz`);
+                if (quizSection) {
+                    quizSection.classList.add('border-red-500', 'border-2');
+                    quizSection.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    let tempMsg = document.getElementById(`tempMsgModule${currentModuleNum}`);
+                    if (!tempMsg) {
+                        tempMsg = document.createElement('p');
+                        tempMsg.id = `tempMsgModule${currentModuleNum}`;
+                        tempMsg.className = 'text-red-600 font-semibold mt-2';
+                        tempMsg.textContent = 'Bitte beantworte zuerst den Wissens-Check, um fortzufahren.';
+                        const feedbackDiv = quizSection.querySelector('.feedback-message');
+                        if (feedbackDiv) {
+                            feedbackDiv.parentNode.insertBefore(tempMsg, feedbackDiv.nextSibling);
+                        } else {
+                             quizSection.appendChild(tempMsg);
+                        }
+                       
+                        setTimeout(() => {
+                            tempMsg.remove();
+                            quizSection.classList.remove('border-red-500', 'border-2');
+                        }, 3000);
+                    }
+                    return; 
+                }
+            }
+
+            if (nextModuleNum <= totalModules) {
+                openModule(nextModuleNum, true); // Explicitly pass true for scrolling
+            }
+        });
+    });
+    
+    finishButton.addEventListener('click', () => {
+        if (completedModules < totalModules) {
+            for(let i=1; i<=totalModules; i++) {
+                if (!quizAnsweredForModule[i]) {
+                    openModule(i, true); // Open and scroll to the incomplete module's header
+                    const quizSection = document.querySelector(`#module-${i}-content .quiz`);
+                     if (quizSection) {
+                        quizSection.classList.add('border-red-500', 'border-2');
+                        let tempMsg = document.getElementById(`tempMsgModule${i}_finish`);
+                        if (!tempMsg) {
+                            tempMsg = document.createElement('p');
+                            tempMsg.id = `tempMsgModule${i}_finish`;
+                            tempMsg.className = 'text-red-600 font-semibold mt-2';
+                            tempMsg.textContent = 'Bitte bearbeite dieses Modul noch, bevor du abschließt.';
+                            const feedbackDiv = quizSection.querySelector('.feedback-message');
+                            if (feedbackDiv) {
+                                feedbackDiv.parentNode.insertBefore(tempMsg, feedbackDiv.nextSibling);
+                            } else {
+                                 quizSection.appendChild(tempMsg);
+                            }
+                            setTimeout(() => {
+                                tempMsg.remove();
+                                quizSection.classList.remove('border-red-500', 'border-2');
+                            }, 4000);
+                        }
+                    } else { 
+                         const moduleContent = document.querySelector(`#module-${i}-content`);
+                         if(moduleContent){
+                             // If no quiz, just ensure the module is open and scrolled to.
+                             // openModule already handles scrolling to header.
+                         }
+                    }
+                    return; 
+                }
+            }
+        }
+
+        modulesContainer.classList.add('hidden');
+        completionScreen.classList.remove('hidden');
+        completionScreen.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    restartButton.addEventListener('click', () => {
+        completedModules = 0;
+        quizAnsweredForModule.fill(false);
+        updateProgressBar();
+        
+        document.querySelectorAll('.quiz-option').forEach(opt => {
+            opt.classList.remove('correct', 'incorrect');
+            opt.disabled = false;
+            const icon = opt.querySelector('i.fa-check');
+            if (icon) icon.remove();
+            let originalText = opt.textContent.replace(' (Richtige Antwort)', '').trim();
+            opt.innerHTML = originalText; 
+        });
+
+        document.querySelectorAll('.feedback-message').forEach(fb => {
+            fb.style.display = 'none';
+            fb.textContent = '';
+        });
+        if(quiz7Options) quiz7Options.value = "";
+        if(feedback7El) feedback7El.style.display = 'none';
+
+        completionScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+        startScreen.scrollIntoView({ behavior: 'smooth' });
+
+        document.querySelectorAll('.module-content').forEach(content => {
+            content.classList.remove('active');
+            content.style.maxHeight = '0';
+            content.style.opacity = '0';
+        });
+        document.querySelectorAll('.module-header i.fa-chevron-down').forEach(icon => {
+            icon.classList.remove('rotate-180');
+        });
+    });
+
+    updateProgressBar();
+</script>
+
+</body>
+</html>
